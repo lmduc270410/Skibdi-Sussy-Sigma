@@ -1,0 +1,90 @@
+{
+
+	"algorithms": [
+		"binary_search",
+		"ternary_search",
+		"parallel_binary_search",
+
+		"dp",
+		"dp_bitmask",
+		"dp_digit",
+		"dp_on_tree",
+		"dp_knapsack",
+		"dp_reroot",
+		"dp_lis",
+
+		"dfs",
+		"bfs",
+		"dijkstra",
+		"floyd",
+		"bellman_ford",
+		"topological_sort",
+		"tarjan",
+		"kosaraju",
+
+		"two_pointers",
+		"prefix_sum",
+
+		"divide_and_conquer",
+
+		"centroid_decomposition",
+		"heavy_light_decomposition",
+		"binary_lifting",
+		"lowest_common_ancestor",
+
+
+		"hashing",
+		"z_function",
+		"kmp",
+		"manacher",
+
+		"mo",
+		"mo_rollback",
+
+		"small_to_large",
+
+		"convex_hull",
+		"sweepline",
+
+		"sieve",
+		"fast_exponent",
+		"modular_inverse",
+		"extended_gcd",
+		"crt",
+		"combinatorics"
+	],
+
+	"data_structures": [
+		"segment_tree",
+		"fenwick_tree",
+		"dsu",
+		"blocking",
+		"line_containers",
+		"stack",
+		"queue",
+		"deque",
+		"priority_queue",
+		"persistent_segment_tree",
+		"dsu_rollback",
+		"dsu_on_tree",
+		"treap",
+		"xor_basis",
+		"sparse_table",
+		"treap",
+		"splay_tree",
+		"bitset",
+		"cartesian_tree"
+	],
+
+	"theorems": [
+	    "pigeonhole_principle",
+	    "inclusion_exclusion",
+	    "fermats_little_theorem",
+	    "star_and_bars"
+	],
+
+	"techniques": [
+		"coordinate_compression",
+		"manhattan_to_chebyshev"
+	]
+}
