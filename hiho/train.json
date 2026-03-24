@@ -1,0 +1,16 @@
+[
+{
+
+	"problem_id" : "luogu_8218",
+	"tags" : ["prefix_sum"],
+	"editorial" : "First, it’s easy to see that binary search is applicable here, because as we bisect the values of w, the y-coordinate does not decrease as w decreases. At this point, our biggest challenge is how to quickly calculate the value of the ore within each interval. We realize that the sum of the values of all qualifying ores within an interval can be easily computed using prefix sums. Therefore, while performing the binary search, we simply record a prefix sum each time to calculate both the count and the total value."},
+
+{
+
+},
+
+{
+	"problem_id" : "luogo_1314",
+	"tags" : ["prefix_sum", "binary_search"]	
+}
+]

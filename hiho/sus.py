@@ -125,60 +125,52 @@ def print_tags(tags):
 
 if __name__ == "__main__":
     code = """
-    #include<bits/stdc++.h>
-#define int long long
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <cmath>
+#include <cctype>
+#include <queue>
+#include <vector>
+
 using namespace std;
-struct Node{
-    int w,v;
-}a[2000005];
-struct node{
-    int l,r;
-}b[2000005];
-int n,m,s,qzw[200005],qzh[200005],l=0,r=1e6,mid,ans=1e18;
-signed main(){
-    ios::sync_with_stdio(0),cin.tie(0),cout.tie(0);
-    cin>>n>>m>>s;
-    for(int i=1;i<=n;i++){
-        cin>>a[i].w>>a[i].v;
+
+inline int read()
+{
+    int x=0,f=1;char ch=getchar();
+    while (!isdigit(ch)){if (ch=='-') f=-1;ch=getchar();}
+    while (isdigit(ch)){x=x*10+ch-48;ch=getchar();}
+    return x*f;
+}
+
+int n,m,a[100050],s[100050];
+
+int main()
+{
+    n=read();
+    for (int i=1;i<=n;i++)
+        s[i]=s[i-1]+(a[i]=read());
+    m=read();
+    for (int i=1;i<=m;i++)
+    {
+        int l=read(),r=read();
+        cout << s[r]-s[l-1] << endl;
     }
-    for(int i=1;i<=m;i++){
-        cin>>b[i].l>>b[i].r;
-    }
-    while(l<=r){
-        mid=(l+r>>1);
-        for(int i=1;i<=n;i++){
-            if(a[i].w>=mid){
-                qzh[i]=qzh[i-1]+1;
-                qzw[i]=qzw[i-1]+a[i].v;
-            }
-            else{
-                qzw[i]=qzw[i-1];
-                qzh[i]=qzh[i-1];
-            }
-        }
-        int sum=0;
-        for(int i=1;i<=m;i++){
-            sum+=(qzw[b[i].r]-qzw[b[i].l-1])*(qzh[b[i].r]-qzh[b[i].l-1]);
-        }
-        ans=min(abs(sum-s),ans);
-        if(sum<=s){
-            r=mid-1;
-        }
-        else{
-            l=mid+1;
-        }
-    }
-    cout<<ans;
     return 0;
 }
+
 
     """
 
     editorial = """
-    Approach
-    First, it’s easy to see that binary search is applicable here, because as we bisect the values of w, the y-coordinate does not decrease as w decreases.
+We define the prefix sum of a sequence a n as S n equals the sum from i equals 1 to n of a i, which is a 1 plus a 2 and so on up to a n.
 
-    At this point, our biggest challenge is how to quickly calculate the value of the ore within each interval. We realize that the sum of the values of all qualifying ores within an interval can be easily computed using prefix sums. Therefore, while performing the binary search, we simply record a prefix sum each time to calculate both the count and the total value.
+With prefix sums, we can use differences to compute static range sums. Specifically, for an interval from l to r, the sum a l plus a l plus 1 and so on up to a r is equal to S r minus S l minus 1.
+
+To prove this, we expand both terms. S r equals a 1 plus a 2 and so on up to a l minus 1, then plus a l, a l plus 1 and so on up to a r. Meanwhile, S l minus 1 equals a 1 plus a 2 and so on up to a l minus 1. Subtracting S l minus 1 from S r cancels the first part, leaving a l plus a l plus 1 and so on up to a r, which is exactly the desired range sum.
+
+After preprocessing the prefix sums, each query can be answered in constant time.
 
     """
 
