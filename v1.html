@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Problem → Markdown Generator</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#11172a; --panel2:#151d34; --text:#e8ecf7; --muted:#a7b0c5;
+      --border:rgba(255,255,255,.08); --accent:#7c8cff; --accent2:#55d6be; --ok:#7ee081;
+      --warn:#ffcc66; --danger:#ff6b6b; --shadow:0 20px 60px rgba(0,0,0,.35); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at top, #152041 0, var(--bg) 55%); color:var(--text);
+    }
+    .wrap{max-width:1360px;margin:0 auto;padding:24px}
+    .hero{
+      background:linear-gradient(135deg, rgba(124,140,255,.18), rgba(85,214,190,.10));
+      border:1px solid var(--border); border-radius:24px; padding:24px; box-shadow:var(--shadow); margin-bottom:20px;
+    }
+    .hero h1{margin:0 0 8px;font-size:28px}
+    .hero p{margin:6px 0;color:var(--muted);line-height:1.6}
+    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+    .panel{background:rgba(17,23,42,.92);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .head{padding:16px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .head h2{margin:0;font-size:18px}
+    .body{padding:18px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .tab{border:1px solid var(--border); background:var(--panel2); color:var(--text); padding:10px 14px; border-radius:999px; cursor:pointer; transition:.2s}
+    .tab.active{background:var(--accent);color:#fff;border-color:transparent}
+    .tab:hover{transform:translateY(-1px)}
+    .section{display:none}.section.active{display:block}
+    label{display:block;margin:0 0 6px;color:var(--muted);font-size:13px}
+    textarea,input[type="text"],input[type="url"],input[type="password"],input[type="number"],select{
+      width:100%; background:#0d1324; color:var(--text); border:1px solid var(--border);
+      border-radius:14px; padding:12px 14px; outline:none; font-size:14px;
+    }
+    textarea{min-height:250px;resize:vertical;line-height:1.55}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+    .btnbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button,.filebtn,.mini-btn{
+      border:0;border-radius:14px;padding:11px 14px;cursor:pointer;font-weight:700;color:#fff;background:var(--accent);transition:.2s;
+    }
+    button:hover,.filebtn:hover,.mini-btn:hover{transform:translateY(-1px);opacity:.96}
+    button.secondary,.filebtn.secondary,.mini-btn.secondary{background:#29314d;color:var(--text);border:1px solid var(--border)}
+    button.good{background:#2e8b57}
+    button.warn{background:#8a6d1f}
+    button.danger{background:#8f3040}
+    button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .dropzone{border:1.5px dashed rgba(124,140,255,.45); background:rgba(124,140,255,.06); border-radius:18px; padding:18px; text-align:center; margin-bottom:12px}
+    .dropzone.dragover{background:rgba(85,214,190,.10);border-color:rgba(85,214,190,.65)}
+    .muted{color:var(--muted)} .small{font-size:12px;line-height:1.5}
+    .output-list{display:flex;flex-direction:column;gap:12px;max-height:70vh;overflow:auto;padding-right:4px}
+    .card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:14px}
+    .card h3{margin:0 0 8px;font-size:16px}
+    .meta{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:10px;word-break:break-word}
+    .pillwrap{display:flex;flex-wrap:wrap;gap:8px}
+    .pill{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:rgba(124,140,255,.15);border:1px solid rgba(124,140,255,.25);font-size:12px}
+    .filelist{max-height:220px;overflow:auto;border:1px solid var(--border);background:rgba(255,255,255,.02);border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.6}
+    pre{white-space:pre-wrap;word-break:break-word;background:#0d1324;border:1px solid var(--border);border-radius:14px;padding:12px;color:#dce4ff;overflow:auto;margin:0;max-height:260px}
+    .status{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);margin-top:10px;font-size:13px;line-height:1.5;white-space:pre-wrap}
+    .kbd{padding:2px 7px;border-radius:7px;background:rgba(255,255,255,.08);border:1px solid var(--border);font-size:12px;color:var(--text)}
+    .split-note{padding:10px 12px;border-left:3px solid var(--warn);background:rgba(255,204,102,.08);border-radius:12px;color:#f2e3b1;margin-top:10px;font-size:13px;line-height:1.5}
+    a{color:#9db0ff}
+    .ai-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+    .ai-card{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:16px;padding:12px}
+    .ai-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+    .ai-card-title{font-weight:800}
+    .ai-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .ai-grid .full{grid-column:1 / -1}
+    .ai-toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .progress-wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+    .progress{flex:1;min-width:220px;height:10px;border-radius:999px;background:#0d1324;border:1px solid var(--border);overflow:hidden}
+    .progress > div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s}
+    .flex-between{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+    @media (max-width:1180px){.grid{grid-template-columns:1fr}.ai-grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:640px){.row,.row3,.ai-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>Problem → Markdown Generator</h1>
+    <p>Tạo file <span class="kbd">.md</span> từ link, đề bài dán tay, file đơn hoặc cả folder chứa nhiều bài. Nếu đầu vào có nhiều bài, tool sẽ xuất <span class="kbd">.zip</span> chứa nhiều file markdown.</p>
+    <p class="small">Format đầu ra theo đúng mẫu bạn yêu cầu: frontmatter tiếng Việt, tiêu đề, phần <b>Đề bài</b> và <b>Lời giải</b>. Khi không có lời giải, tool sẽ để trống để bạn tự điền hoặc chạy AI nếu đã cấu hình.</p>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="head">
+        <h2>Nhập dữ liệu</h2>
+        <div class="muted small">Hỗ trợ URL / text / file / folder</div>
+      </div>
+      <div class="body">
+        <div class="tabs">
+          <button class="tab active" data-tab="url">Link</button>
+          <button class="tab" data-tab="text">Dán đề</button>
+          <button class="tab" data-tab="files">File / Folder</button>
+        </div>
+
+        <div id="tab-url" class="section active">
+          <div class="row">
+            <div>
+              <label>URL bài toán hoặc trang chứa đề</label>
+              <input id="urlInput" type="url" placeholder="https://www.luogu.com.cn/problem/P8218" />
+            </div>
+            <div>
+              <label>Source gợi ý</label>
+              <input id="sourceInput" type="text" placeholder="luogu / codeforces / atcoder ..." />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Tiêu đề gợi ý (không bắt buộc)</label>
+              <input id="titleInput" type="text" placeholder="P8218" />
+            </div>
+            <div>
+              <label>Link bổ sung (nếu muốn)</label>
+              <input id="extraLinkInput" type="url" placeholder="https://..." />
+            </div>
+          </div>
+          <div class="btnbar">
+            <button id="fetchUrlBtn">Lấy nội dung từ link</button>
+            <button class="secondary" id="useDemoBtn">Nạp ví dụ</button>
+          </div>
+          <div class="split-note">Một số website chặn CORS, nên tool sẽ thử lấy nội dung qua lớp proxy đọc văn bản. Nếu trang đặc biệt không lấy được, hãy chuyển sang dán đề hoặc tải file.</div>
+        </div>
+
+        <div id="tab-text" class="section">
+          <div class="row">
+            <div>
+              <label>Tiêu đề gợi ý</label>
+              <input id="textTitleInput" type="text" placeholder="P8218" />
+            </div>
+            <div>
+              <label>Link gợi ý</label>
+              <input id="textLinkInput" type="url" placeholder="https://www.luogu.com.cn/problem/P8218" />
+            </div>
+          </div>
+          <label>Đề bài / nhiều đề bài</label>
+          <textarea id="textInput" placeholder="Dán nội dung đề hoặc cả file text ở đây..."></textarea>
+          <div class="btnbar">
+            <button id="processTextBtn">Sinh Markdown</button>
+            <button class="secondary" id="fillSampleTextBtn">Chèn mẫu</button>
+          </div>
+        </div>
+
+        <div id="tab-files" class="section">
+          <div class="dropzone" id="dropzone">
+            <div><b>Kéo thả file hoặc folder vào đây</b></div>
+            <div class="muted small">Hỗ trợ: txt, md, html, htm, pdf, docx, json</div>
+            <div class="btnbar" style="justify-content:center;">
+              <label class="filebtn secondary" style="display:inline-block; cursor:pointer; margin:0;">
+                Chọn file
+                <input id="fileInput" type="file" multiple style="display:none" />
+              </label>
+              <label class="filebtn secondary" style="display:inline-block; cursor:pointer; margin:0;">
+                Chọn folder
+                <input id="folderInput" type="file" webkitdirectory multiple style="display:none" />
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Source mặc định cho file</label>
+              <input id="fileSourceInput" type="text" placeholder="luogu / codeforces / custom ..." />
+            </div>
+            <div>
+              <label>Chế độ xuất</label>
+              <select id="exportMode">
+                <option value="auto">Tự chọn: 1 bài = .md, nhiều bài = .zip</option>
+                <option value="zip">Luôn xuất .zip</option>
+                <option value="single">Chỉ xuất file đầu tiên</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Chế độ chia nhiều bài</label>
+              <select id="splitMode">
+                <option value="auto">Tự động nhận diện</option>
+                <option value="page">Tách theo trang / dấu ngăn</option>
+                <option value="heading">Tách theo heading</option>
+              </select>
+            </div>
+            <div>
+              <label>Ghi đè thể loại thủ công</label>
+              <input id="manualTagsInput" type="text" placeholder="ví dụ: tổng cộng dồn, greedy" />
+            </div>
+          </div>
+          <div class="btnbar">
+            <button id="processFilesBtn">Xử lý file / folder</button>
+            <button class="secondary" id="clearFilesBtn">Xóa danh sách</button>
+          </div>
+          <div class="filelist" id="fileList">Chưa có file nào.</div>
+        </div>
+
+        <div style="margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
+          <div class="row3">
+            <div>
+              <label>Ngôn ngữ AI</label>
+              <select id="langSelect">
+                <option value="vi">Tiếng Việt</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div>
+              <label>Delay giữa 2 bài (ms)</label>
+              <input id="globalDelayMs" type="number" min="0" step="100" value="1200" />
+            </div>
+            <div>
+              <label>Jitter ngẫu nhiên (ms)</label>
+              <input id="globalJitterMs" type="number" min="0" step="100" value="400" />
+            </div>
+          </div>
+          <div class="flex-between">
+            <div class="muted small">AI sẽ chạy tuần tự từng bài, mỗi bài chỉ gọi 1 request tại một thời điểm và có fallback sang model khác khi gặp lỗi.</div>
+            <div class="ai-toolbar">
+              <button class="secondary" id="addProfileBtn">+ Thêm model</button>
+              <button class="secondary" id="saveProfilesBtn">Lưu cấu hình</button>
+              <button class="secondary" id="loadProfilesBtn">Tải cấu hình</button>
+            </div>
+          </div>
+          <div id="modelProfiles" class="ai-list"></div>
+          <div class="btnbar">
+            <button class="good" id="aiGenerateBtn">Sinh lời giải + thể loại bằng AI</button>
+            <button class="secondary" id="stopAiBtn">Dừng AI</button>
+          </div>
+          <div class="small muted" style="margin-top:8px;">Gemini native dùng <span class="kbd">generateContent</span>; OpenAI-compatible dùng <span class="kbd">chat/completions</span>. Nếu model nào bị 429, tool sẽ chuyển sang model tiếp theo thay vì spam lại ngay.</div>
+          <div class="progress-wrap">
+            <div class="progress"><div id="progressBar"></div></div>
+            <div class="muted small" id="progressText">0/0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="head">
+        <h2>Kết quả</h2>
+        <div class="muted small" id="resultCount">0 file</div>
+      </div>
+      <div class="body">
+        <div class="btnbar" style="margin-top:0;">
+          <button id="downloadBtn" disabled>Tải xuống</button>
+          <button class="secondary" id="copyAllBtn" disabled>Copy toàn bộ</button>
+          <button class="secondary" id="previewBtn" disabled>Xem markdown</button>
+        </div>
+        <div class="status" id="statusBox">Sẵn sàng. Hãy nhập link, dán đề hoặc tải file/folder.</div>
+        <div class="output-list" id="outputList" style="margin-top:14px;"></div>
+        <div style="margin-top:12px;">
+          <label>Markdown preview</label>
+          <pre id="previewBox">Chưa có dữ liệu.</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px;">
+    <div class="head">
+      <h2>Hướng dẫn sử dụng</h2>
+      <div class="muted small">Dùng ngay trong trình duyệt</div>
+    </div>
+    <div class="body small" style="line-height:1.8; color: var(--muted);">
+      <div>1) <b>Dán link</b>: chuyển sang tab <span class="kbd">Link</span>, nhập URL rồi bấm <b>Lấy nội dung từ link</b>. Nếu website chặn truy cập trực tiếp, hãy dùng tab <span class="kbd">Dán đề</span> hoặc <span class="kbd">File / Folder</span>.</div>
+      <div>2) <b>Dán đề</b>: chuyển sang tab <span class="kbd">Dán đề</span>, dán toàn bộ nội dung đề bài. Nếu một khối có nhiều bài, tool sẽ thử tách thành nhiều file.</div>
+      <div>3) <b>Upload file hoặc folder</b>: chuyển sang tab <span class="kbd">File / Folder</span>, kéo thả hoặc chọn nhiều file. Nếu là folder chứa nhiều đề, tool sẽ sinh nhiều markdown tương ứng.</div>
+      <div>4) <b>Xuất kết quả</b>: bấm <span class="kbd">Tải xuống</span>. Một bài sẽ tải xuống file <span class="kbd">.md</span>; nhiều bài sẽ xuất <span class="kbd">.zip</span> chứa các file <span class="kbd">.md</span>.</div>
+      <div>5) <b>AI lời giải</b>: thêm một hoặc nhiều model. Model nào lỗi hoặc bị 429 thì tool sẽ tự chuyển sang model khác. Chỉ một request cho một bài, không gom nhiều bài vào một request.</div>
+      <div style="margin-top:10px; color:#f2e3b1;">Lưu ý: với bài khó, phần lời giải tự sinh vẫn nên được kiểm tra thủ công trước khi lưu vào kho đề.</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.1/mammoth.browser.min.js"></script>
+<script>
+(() => {
+  const state = {
+    files: [],
+    parsedProblems: [],
+    currentMarkdown: [],
+    abortAi: false,
+    profiles: [],
+  };
+
+  const el = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const normalize = s => String(s ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const unique = arr => [...new Set((arr || []).filter(Boolean))];
+  const slugify = s => String(s ?? 'problem').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'problem';
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const rand = max => Math.floor(Math.random() * Math.max(1, max || 1));
+
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  function setStatus(msg, kind='info'){
+    const box = el('statusBox');
+    box.textContent = msg;
+    box.style.borderColor = kind === 'error' ? 'rgba(255,107,107,0.4)' : kind === 'ok' ? 'rgba(126,224,129,0.4)' : 'var(--border)';
+    box.style.background = kind === 'error' ? 'rgba(255,107,107,0.08)' : kind === 'ok' ? 'rgba(126,224,129,0.08)' : 'rgba(255,255,255,0.04)';
+    box.style.color = kind === 'error' ? '#ffb6b6' : kind === 'ok' ? '#c8f8cb' : 'var(--muted)';
+  }
+
+  function setProgress(done, total){
+    el('progressText').textContent = `${done}/${total}`;
+    el('progressBar').style.width = total ? `${Math.round(done * 100 / total)}%` : '0%';
+  }
+
+  function tabSwitch(name){
+    document.querySelectorAll('.tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === name));
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    el('tab-' + name).classList.add('active');
+  }
+  document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => tabSwitch(btn.dataset.tab)));
+
+  function detectSource(urlOrText, fallback=''){
+    if (fallback) return fallback.trim();
+    const s = String(urlOrText || '').trim();
+    try{
+      const u = new URL(s);
+      const host = u.hostname.replace(/^www\./, '');
+      if (host.includes('luogu')) return 'luogu';
+      if (host.includes('codeforces')) return 'codeforces';
+      if (host.includes('atcoder')) return 'atcoder';
+      if (host.includes('open.kattis')) return 'kattis';
+      return host.split('.')[0] || 'unknown';
+    }catch{
+      return 'unknown';
+    }
+  }
+
+  function detectProblemId(text, title=''){
+    const sources = [text, title].filter(Boolean).join('\n');
+    const patterns = [
+      /\b(P\d{3,6})\b/i,
+      /\b(CF\d+[A-Z0-9]*)\b/i,
+      /\b(ABC\d+[A-Z]?)\b/i,
+      /\b(ARC\d+[A-Z]?)\b/i,
+      /\b(UVA\s?\d+)\b/i,
+      /\b(SPOJ\s?[A-Z0-9_]+)\b/i,
+      /\b(K\d+)\b/i,
+    ];
+    for (const p of patterns){
+      const m = sources.match(p);
+      if (m) return m[1].replace(/\s+/g, '');
+    }
+    return '';
+  }
+
+  function detectTitle(text, fallback=''){
+    const t = normalize(text);
+    const lines = t.split('\n').map(x => x.trim()).filter(Boolean);
+    if (!lines.length) return fallback || 'Untitled';
+    const heading = lines.find(x => /^#{1,3}\s+/.test(x));
+    if (heading) return heading.replace(/^#{1,3}\s+/, '').trim();
+    const first = lines.slice(0,3).find(x => /[A-Za-z0-9]/.test(x) && x.length < 120);
+    if (first) return first.replace(/^[\d.\-\)\s]+/, '').trim();
+    return fallback || 'Untitled';
+  }
+
+  function extractStatement(text){
+    const s = normalize(text);
+    const patterns = [
+      /##\s*(Đề bài|Statement|Problem Statement|题目|题面|Task)\s*\n([\s\S]*?)(?=\n##\s*|\n#\s*|$)/i,
+      /(?:^|\n)###?\s*(Đề bài|Statement|Problem Statement|题目|题面|Task)\s*\n([\s\S]*?)(?=\n###?\s*|\n#\s*|$)/i,
+    ];
+    for (const p of patterns){
+      const m = s.match(p);
+      if (m) return m[2].trim();
+    }
+    const split = s.split(/\n\s*(?:Lời giải|Solution|Editorial|Hướng dẫn|Phân tích)\s*\n/i);
+    if (split.length > 1) return split[0].trim();
+    return s.trim();
+  }
+
+  function extractSolution(text){
+    const s = normalize(text);
+    const patterns = [
+      /##\s*(Lời giải|Solution|Editorial|Answer|Giải|Phân tích)\s*\n([\s\S]*?)$/i,
+      /(?:^|\n)###?\s*(Lời giải|Solution|Editorial|Answer|Giải|Phân tích)\s*\n([\s\S]*?)$/i,
+    ];
+    for (const p of patterns){
+      const m = s.match(p);
+      if (m) return m[2].trim();
+    }
+    const split = s.split(/\n\s*(?:Lời giải|Solution|Editorial|Hướng dẫn|Phân tích)\s*\n/i);
+    if (split.length > 1) return split[1].trim();
+    return '';
+  }
+
+  function inferTags(text){
+    const s = normalize(text).toLowerCase();
+    const rules = [
+      ['tổng cộng dồn', /prefix sums?|cộng dồn|subarray sum|range sum|cumulative/],
+      ['difference array', /difference array|hiệu mảng|range add/],
+      ['greedy', /greedy|tham lam/],
+      ['dp', /dynamic programming|\bdp\b|quy hoạch động/],
+      ['graph', /graph|đồ thị|edge|vertex/],
+      ['bfs', /\bbfs\b|breadth-first/],
+      ['dfs', /\bdfs\b|depth-first/],
+      ['dijkstra', /dijkstra|shortest path|đường đi ngắn nhất/],
+      ['union find', /union find|dsu|disjoint set/],
+      ['segment tree', /segment tree|cây đoạn/],
+      ['fenwick', /fenwick|bit\b|binary indexed tree/],
+      ['binary search', /binary search|tìm kiếm nhị phân/],
+      ['two pointers', /two pointers|hai con trỏ/],
+      ['sliding window', /sliding window|cửa sổ trượt/],
+      ['string', /string|chuỗi|kmp|z-algorithm/],
+      ['math', /math|toán|arithmetic/],
+      ['number theory', /number theory|số học|gcd|lcm|prime|nguyên tố/],
+      ['combinatorics', /combination|permutation|tổ hợp|combinatorics/],
+      ['geometry', /geometry|hình học|convex hull/],
+      ['tree', /tree|cây|lca|euler tour/],
+      ['bitmask', /bitmask|trạng thái bit/],
+      ['simulation', /simulation|mô phỏng/],
+    ];
+    const out = [];
+    for (const [tag, re] of rules) if (re.test(s)) out.push(tag);
+    return out.length ? out : ['misc'];
+  }
+
+  function splitIntoBlocks(text, splitMode='auto'){
+    const s = normalize(text).trim();
+    if (!s) return [];
+    const lines = s.split('\n');
+
+    if (splitMode === 'page'){
+      const pages = s.split(/\f|\n\s*---\s*\n|\n\s*=\s*\=\s*\=\s*\n/).map(x => x.trim()).filter(Boolean);
+      if (pages.length > 1) return pages;
+    }
+
+    const headingStarts = [];
+    for (let i = 0; i < lines.length; i++){
+      const line = lines[i].trim();
+      if (/^#{1,2}\s+/.test(line) || /^\s*(P\d{3,6}|CF\d+[A-Z0-9]*|ABC\d+[A-Z]?|ARC\d+[A-Z]?)\b/i.test(line)) headingStarts.push(i);
+    }
+    if (headingStarts.length >= 2){
+      const blocks = [];
+      for (let i = 0; i < headingStarts.length; i++){
+        const start = headingStarts[i];
+        const end = i + 1 < headingStarts.length ? headingStarts[i + 1] : lines.length;
+        blocks.push(lines.slice(start, end).join('\n').trim());
+      }
+      return blocks.filter(Boolean);
+    }
+
+    if (splitMode === 'heading' && /\n#{1,2}\s+/.test(s)){
+      const chunks = s.split(/(?=^#{1,2}\s+)/m).map(x => x.trim()).filter(Boolean);
+      if (chunks.length > 1) return chunks;
+    }
+
+    return [s];
+  }
+
+  function mdFrontmatter(problem){
+    const lines = ['---'];
+    lines.push(`tiêu đề: ${JSON.stringify(problem.title || 'Untitled')}`);
+    if (problem.link) lines.push(`links (nếu có): ${JSON.stringify(problem.link)}`);
+    lines.push(`thể loại: ${JSON.stringify(problem.tags && problem.tags.length ? problem.tags : ['misc'])}`);
+    lines.push('---');
+    return lines.join('\n');
+  }
+
+  function buildMarkdown(problem){
+    const title = problem.title || 'Untitled';
+    const statement = (problem.statement || '').trim() || '...';
+    const solution = (problem.solution || '').trim() || '...';
+    return `${mdFrontmatter(problem)}\n\n# ${title}\n\n## Đề bài\n${statement}\n\n## Lời giải\n${solution}\n`;
+  }
+
+  function makeProblemObject({title, link, source, statement, solution, tags, idHint}){
+    const id = detectProblemId(statement + '\n' + (solution || '') + '\n' + (title || '') + '\n' + (idHint || ''));
+    const finalTitle = title || id || 'Untitled';
+    const finalTags = unique(tags && tags.length ? tags : inferTags(statement + '\n' + solution + '\n' + finalTitle));
+    return { title: finalTitle, id, link: link || '', source: source || 'unknown', statement: statement || '', solution: solution || '', tags: finalTags };
+  }
+
+  function parseMultiProblemText(text, {title='', link='', source='', splitMode='auto', manualTags=''} = {}){
+    const blocks = splitIntoBlocks(text, splitMode);
+    const results = [];
+    for (const block of blocks){
+      const blockTitle = detectTitle(block, title);
+      const blockStatement = extractStatement(block);
+      const blockSolution = extractSolution(block);
+      const tags = manualTags.trim() ? manualTags.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : inferTags(blockStatement + '\n' + blockSolution + '\n' + blockTitle);
+      results.push(makeProblemObject({ title:blockTitle, link, source, statement:blockStatement, solution:blockSolution, tags, idHint:block }));
+    }
+    return results;
+  }
+
+  function makeFilename(p, idx, total){
+    const id = p.id || slugify(p.title);
+    const title = slugify(p.title || id);
+    if (total <= 1) return `${id || title}.md`;
+    return `${String(idx + 1).padStart(2, '0')}-${id || title}.md`;
+  }
+
+  function updateResultUI(problems){
+    state.parsedProblems = problems;
+    state.currentMarkdown = problems.map(buildMarkdown);
+    el('resultCount').textContent = `${problems.length} file`;
+    el('downloadBtn').disabled = !problems.length;
+    el('copyAllBtn').disabled = !problems.length;
+    el('previewBtn').disabled = !problems.length;
+
+    const out = el('outputList');
+    out.innerHTML = problems.length ? problems.map((p, idx) => {
+      const filename = makeFilename(p, idx, problems.length);
+      return `<div class="card">
+        <h3>${esc(p.title)}</h3>
+        <div class="meta">
+          <div><b>File:</b> ${esc(filename)}</div>
+          <div><b>Source:</b> ${esc(p.source || 'unknown')}</div>
+          <div><b>Link:</b> ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.link)}</a>` : '—'}</div>
+          <div><b>Problem ID:</b> ${esc(p.id || '—')}</div>
+        </div>
+        <div class="pillwrap">${(p.tags || ['misc']).map(t => `<span class="pill">${esc(t)}</span>`).join('')}</div>
+      </div>`;
+    }).join('') : '<div class="muted">Chưa có kết quả.</div>';
+
+    el('previewBox').textContent = problems.length ? buildMarkdown(problems[0]) : 'Chưa có dữ liệu.';
+  }
+
+  function updateFileList(){
+    const list = el('fileList');
+    if (!state.files.length){ list.textContent = 'Chưa có file nào.'; return; }
+    list.innerHTML = state.files.map((f, i) => `${i+1}. ${esc(f.webkitRelativePath || f.name)} <span class="muted">(${Math.ceil(f.size/1024)} KB)</span>`).join('<br>');
+  }
+
+  function gatherFilesFromInput(fileList){
+    state.files = Array.from(fileList || []);
+    updateFileList();
+    setStatus(`Đã chọn ${state.files.length} file.`, 'ok');
+  }
+
+  async function readFileAsText(file){ return await file.text(); }
+  async function readPdfAsText(file){
+    if (!window.pdfjsLib) throw new Error('PDF.js chưa tải xong');
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pages = [];
+    for (let i = 1; i <= pdf.numPages; i++){
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const text = content.items.map(item => item.str).join(' ');
+      pages.push(`\n\n=== PAGE ${i} ===\n\n${text}`);
+    }
+    return pages.join('\n');
+  }
+  async function readDocxAsText(file){
+    if (!window.mammoth) throw new Error('Mammoth chưa tải xong');
+    const buf = await file.arrayBuffer();
+    const res = await window.mammoth.extractRawText({ arrayBuffer: buf });
+    return res.value || '';
+  }
+  async function readHtmlAsText(file){
+    const txt = await file.text();
+    const doc = new DOMParser().parseFromString(txt, 'text/html');
+    const title = doc.querySelector('title')?.textContent?.trim() || '';
+    const body = doc.body?.innerText || '';
+    return [title, body].filter(Boolean).join('\n\n');
+  }
+  async function readJsonAsText(file){
+    const txt = await file.text();
+    try{ const obj = JSON.parse(txt); return typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2); }catch{ return txt; }
+  }
+  async function readAnyFile(file){
+    const name = (file.name || '').toLowerCase();
+    if (name.endsWith('.pdf')) return await readPdfAsText(file);
+    if (name.endsWith('.docx')) return await readDocxAsText(file);
+    if (name.endsWith('.html') || name.endsWith('.htm')) return await readHtmlAsText(file);
+    if (name.endsWith('.json')) return await readJsonAsText(file);
+    return await readFileAsText(file);
+  }
+
+  async function fetchUrlContent(rawUrl){
+    let url = String(rawUrl || '').trim();
+    if (!url) throw new Error('URL trống');
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    const tryUrls = [
+      url,
+      'https://r.jina.ai/http://' + url.replace(/^https?:\/\//i, ''),
+      'https://r.jina.ai/https://' + url.replace(/^https?:\/\//i, ''),
+    ];
+    let lastErr = null;
+    for (const u of tryUrls){
+      try{
+        const res = await fetch(u, { mode: 'cors' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const txt = await res.text();
+        return { text: txt, finalUrl: url };
+      }catch(err){ lastErr = err; }
+    }
+    throw lastErr || new Error('Không lấy được nội dung từ URL');
+  }
+
+  function enhanceFromUrlText(text, url, fallbackTitle, fallbackLink, fallbackSource){
+    const source = detectSource(url, fallbackSource || '');
+    const title = detectTitle(text, fallbackTitle || '');
+    const statement = extractStatement(text);
+    const solution = extractSolution(text);
+    const tags = inferTags(statement + '\n' + solution + '\n' + title);
+    return [makeProblemObject({ title, link: fallbackLink || url, source, statement, solution, tags, idHint: text })];
+  }
+
+  async function processTextInput(){
+    const text = el('textInput').value.trim();
+    if (!text) return setStatus('Hãy dán nội dung đề bài trước.', 'error');
+    const title = el('textTitleInput').value.trim();
+    const link = el('textLinkInput').value.trim();
+    const source = detectSource(link || title || '', '');
+    const manualTags = el('manualTagsInput').value.trim();
+    const problems = parseMultiProblemText(text, { title, link, source, manualTags, splitMode: 'auto' });
+    updateResultUI(problems);
+    setStatus(`Đã sinh ${problems.length} file markdown từ text.`, 'ok');
+  }
+
+  async function processFiles(){
+    if (!state.files.length) return setStatus('Chưa chọn file nào.', 'error');
+    const problems = [];
+    const splitMode = el('splitMode').value;
+    const manualTags = el('manualTagsInput').value.trim();
+    const defaultSource = el('fileSourceInput').value.trim();
+    for (const file of state.files){
+      try{
+        const content = await readAnyFile(file);
+        const source = detectSource(file.webkitRelativePath || file.name, defaultSource);
+        const parsed = parseMultiProblemText(content, { title:'', link:'', source, splitMode, manualTags });
+        if (parsed.length){
+          if (parsed.length === 1 && !parsed[0].title) parsed[0].title = file.name.replace(/\.[^.]+$/, '');
+          problems.push(...parsed.map(p => ({...p, source: p.source || source })));
+        }
+      }catch(err){
+        problems.push(makeProblemObject({
+          title: file.name.replace(/\.[^.]+$/, ''),
+          link: '',
+          source: defaultSource || 'unknown',
+          statement: `Không đọc được file này: ${file.name}\n\nLỗi: ${String(err.message || err)}`,
+          solution: '...',
+          tags: ['error'],
+          idHint: file.name,
+        }));
+      }
+    }
+    updateResultUI(problems);
+    setStatus(`Đã xử lý ${state.files.length} file, sinh ${problems.length} markdown.`, 'ok');
+  }
+
+  function fillDemo(){
+    el('urlInput').value = 'https://www.luogu.com.cn/problem/P8218';
+    el('sourceInput').value = 'luogu';
+    el('titleInput').value = 'P8218';
+    el('extraLinkInput').value = 'https://www.luogu.com.cn/problem/P8218';
+    el('textTitleInput').value = 'P8218';
+    el('textLinkInput').value = 'https://www.luogu.com.cn/problem/P8218';
+    el('textInput').value = `P8218
+
+## Đề bài
+Cho một mảng a gồm n phần tử nguyên, hãy trả lời nhiều truy vấn hỏi tổng đoạn [l, r].
+
+## Lời giải
+Dùng mảng cộng dồn pre, với pre[i] là tổng của i phần tử đầu tiên. Mỗi truy vấn trả lời bằng pre[r] - pre[l - 1].`;
+    el('manualTagsInput').value = 'tổng cộng dồn';
+    setStatus('Đã nạp ví dụ.', 'ok');
+  }
+
+  async function downloadBlob(filename, blob){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+  }
+
+  function guessBatchFolderName(){
+    const t = state.parsedProblems?.[0]?.title || 'problems';
+    return slugify(t || 'problems');
+  }
+
+  async function downloadResults(problems){
+    if (!problems.length) return;
+    const exportMode = el('exportMode').value;
+    if (problems.length === 1 && exportMode !== 'zip'){
+      const md = buildMarkdown(problems[0]);
+      await downloadBlob(makeFilename(problems[0], 0, 1), new Blob([md], { type:'text/markdown;charset=utf-8' }));
+      return;
+    }
+    const zip = new JSZip();
+    const root = zip.folder(guessBatchFolderName());
+    problems.forEach((p, idx) => root.file(makeFilename(p, idx, problems.length), buildMarkdown(p)));
+    const blob = await zip.generateAsync({ type:'blob' });
+    await downloadBlob('markdown_problems.zip', blob);
+  }
+
+  async function copyAll(){
+    if (!state.currentMarkdown.length) return;
+    await navigator.clipboard.writeText(state.currentMarkdown.join('\n\n---\n\n'));
+    setStatus('Đã copy toàn bộ markdown vào clipboard.', 'ok');
+  }
+
+  async function previewFirst(){
+    if (!state.currentMarkdown.length) return;
+    el('previewBox').textContent = state.currentMarkdown[0];
+    setStatus('Đang xem preview file đầu tiên.', 'ok');
+  }
+
+  function getProfilesFromUI(){
+    const rows = [...document.querySelectorAll('.ai-card')];
+    return rows.map(row => ({
+      id: row.dataset.id,
+      name: row.querySelector('[data-field="name"]').value.trim() || 'Model',
+      provider: row.querySelector('[data-field="provider"]').value,
+      endpoint: row.querySelector('[data-field="endpoint"]').value.trim(),
+      model: row.querySelector('[data-field="model"]').value.trim(),
+      apiKey: row.querySelector('[data-field="apiKey"]').value.trim(),
+      maxRetries: Number(row.querySelector('[data-field="retries"]').value || 0),
+      coolDownMs: Number(row.querySelector('[data-field="cooldown"]').value || 0),
+      promptSuffix: row.querySelector('[data-field="suffix"]').value.trim(),
+    })).filter(p => p.model);
+  }
+
+  function profileTemplate(profile = {}){
+    const id = profile.id || `p_${Date.now()}_${Math.random().toString(16).slice(2,7)}`;
+    const wrap = document.createElement('div');
+    wrap.className = 'ai-card';
+    wrap.dataset.id = id;
+    wrap.innerHTML = `
+      <div class="ai-card-head">
+        <div class="ai-card-title">${esc(profile.name || 'Model')}</div>
+        <div class="ai-toolbar">
+          <button class="mini-btn secondary" data-action="toggle">Ẩn/Hiện</button>
+          <button class="mini-btn danger" data-action="remove">Xóa</button>
+        </div>
+      </div>
+      <div class="ai-body">
+        <div class="ai-grid">
+          <div>
+            <label>Tên hiển thị</label>
+            <input data-field="name" type="text" value="${esc(profile.name || 'Model')}" placeholder="Gemini 1" />
+          </div>
+          <div>
+            <label>Provider</label>
+            <select data-field="provider">
+              <option value="openai-compatible">OpenAI-compatible</option>
+              <option value="gemini-native">Gemini native</option>
+            </select>
+          </div>
+          <div class="full">
+            <label>Model</label>
+            <input data-field="model" type="text" value="${esc(profile.model || '')}" placeholder="gpt-4o-mini / gemini-2.0-flash / deepseek..." />
+          </div>
+          <div class="full endpoint-wrap">
+            <label>Endpoint (OpenAI-compatible)</label>
+            <input data-field="endpoint" type="text" value="${esc(profile.endpoint || '')}" placeholder="https://openrouter.ai/api/v1/chat/completions" />
+          </div>
+          <div>
+            <label>API key</label>
+            <input data-field="apiKey" type="password" value="${esc(profile.apiKey || '')}" placeholder="API key" />
+          </div>
+          <div>
+            <label>Retry tối đa</label>
+            <input data-field="retries" type="number" min="0" step="1" value="${esc(String(profile.maxRetries ?? 3))}" />
+          </div>
+          <div>
+            <label>Cooldown sau lỗi 429 (ms)</label>
+            <input data-field="cooldown" type="number" min="0" step="100" value="${esc(String(profile.coolDownMs ?? 0))}" />
+          </div>
+          <div class="full">
+            <label>Ghi chú prompt thêm (tuỳ chọn)</label>
+            <input data-field="suffix" type="text" value="${esc(profile.promptSuffix || '')}" placeholder="Ví dụ: ưu tiên ngắn gọn, trả JSON chặt..." />
+          </div>
+        </div>
+      </div>
+    `;
+    const providerSel = wrap.querySelector('[data-field="provider"]');
+    providerSel.value = profile.provider || 'openai-compatible';
+    const body = wrap.querySelector('.ai-body');
+    const endpointWrap = wrap.querySelector('.endpoint-wrap');
+    const toggleProviderUI = () => {
+      endpointWrap.style.display = providerSel.value === 'gemini-native' ? 'none' : 'block';
+    };
+    providerSel.addEventListener('change', toggleProviderUI);
+    toggleProviderUI();
+    wrap.querySelector('[data-action="remove"]').addEventListener('click', () => { wrap.remove(); });
+    wrap.querySelector('[data-action="toggle"]').addEventListener('click', () => {
+      body.style.display = body.style.display === 'none' ? '' : 'none';
+    });
+    return wrap;
+  }
+
+  function ensureProfileDefaults(){
+    if (document.querySelectorAll('.ai-card').length) return;
+    const presets = [
+      { name:'Gemini free', provider:'gemini-native', model:'gemini-2.0-flash', apiKey:'', endpoint:'', maxRetries:3, coolDownMs:0, promptSuffix:'' },
+      { name:'OpenRouter fallback', provider:'openai-compatible', model:'openai/gpt-4o-mini', endpoint:'https://openrouter.ai/api/v1/chat/completions', apiKey:'', maxRetries:3, coolDownMs:0, promptSuffix:'' },
+      { name:'DeepSeek fallback', provider:'openai-compatible', model:'deepseek/deepseek-chat', endpoint:'https://openrouter.ai/api/v1/chat/completions', apiKey:'', maxRetries:3, coolDownMs:0, promptSuffix:'' },
+    ];
+    const root = el('modelProfiles');
+    presets.forEach(p => root.appendChild(profileTemplate(p)));
+  }
+
+  function saveProfiles(){
+    const profiles = getProfilesFromUI();
+    localStorage.setItem('mdgen_profiles_v2', JSON.stringify(profiles));
+    setStatus(`Đã lưu ${profiles.length} model.`, 'ok');
+  }
+
+  function loadProfiles(){
+    const raw = localStorage.getItem('mdgen_profiles_v2');
+    const root = el('modelProfiles');
+    root.innerHTML = '';
+    if (!raw){
+      ensureProfileDefaults();
+      setStatus('Chưa có cấu hình lưu sẵn. Đã nạp preset mặc định.', 'ok');
+      return;
+    }
+    try{
+      const profiles = JSON.parse(raw);
+      (profiles && profiles.length ? profiles : []).forEach(p => root.appendChild(profileTemplate(p)));
+      if (!profiles || !profiles.length) ensureProfileDefaults();
+      setStatus('Đã tải cấu hình model.', 'ok');
+    }catch{
+      ensureProfileDefaults();
+      setStatus('Cấu hình lưu sẵn bị lỗi, đã nạp preset mặc định.', 'error');
+    }
+  }
+
+  function buildPrompt(problem){
+    const lang = el('langSelect').value === 'vi' ? 'Việt' : 'Anh';
+    const title = problem.title || 'Untitled';
+    const statement = problem.statement || '';
+    const askSolution = !problem.solution || problem.solution.trim() === '...';
+    const askTags = !problem.tags || !problem.tags.length || (problem.tags.length === 1 && problem.tags[0] === 'misc');
+    const suffix = getProfilesFromUI().length ? '' : '';
+    return `Bạn là trợ lý tạo kho đề competitive programming.
+Hãy trả về JSON hợp lệ, không markdown, không giải thích ngoài JSON, với keys: solution, tags.
+- solution: lời giải ${askSolution ? 'đầy đủ nhưng ngắn gọn vừa đủ' : 'giữ nguyên nếu đã có, nhưng vẫn có thể chỉnh cho tốt hơn'}.
+- tags: mảng chuỗi thể loại phù hợp nhất.
+- Ngôn ngữ trả lời: ${lang}.
+- Nếu đề đã có lời giải thì chỉ bổ sung/cải thiện tối thiểu, không phá format.
+- Nếu không chắc, ưu tiên tính đúng thuật toán hơn là dài dòng.
+
+Tiêu đề: ${title}
+Đề bài:
+${statement}
+${askTags ? '\nHãy suy luận thể loại phù hợp nhất.' : ''}` + (suffix ? `\n${suffix}` : '');
+  }
+
+  async function callOpenAICompatible(profile, prompt){
+    if (!profile.endpoint) throw new Error('Thiếu endpoint');
+    if (!profile.model) throw new Error('Thiếu model');
+    const res = await fetch(profile.endpoint, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${profile.apiKey}` },
+      body: JSON.stringify({
+        model: profile.model,
+        messages: [
+          { role:'system', content:'You are a competitive programming editor. Return JSON only.' },
+          { role:'user', content: prompt },
+        ],
+        temperature: 0.2,
+      })
+    });
+    if (!res.ok){
+      const err = new Error(`AI HTTP ${res.status}`);
+      err.status = res.status;
+      err.retryAfter = Number(res.headers.get('retry-after') || 0);
+      throw err;
+    }
+    const data = await res.json();
+    return data?.choices?.[0]?.message?.content || data?.output_text || '';
+  }
+
+  async function callGeminiNative(profile, prompt){
+    if (!profile.model) throw new Error('Thiếu model');
+    if (!profile.apiKey) throw new Error('Thiếu API key');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(profile.model)}:generateContent`;
+    const res = await fetch(url, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-goog-api-key': profile.apiKey,
+      },
+      body: JSON.stringify({
+        contents: [
+          { role:'user', parts:[{ text: prompt }] }
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: 'application/json'
+        }
+      })
+    });
+    if (!res.ok){
+      const err = new Error(`AI HTTP ${res.status}`);
+      err.status = res.status;
+      err.retryAfter = Number(res.headers.get('retry-after') || 0);
+      throw err;
+    }
+    const data = await res.json();
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    return parts.map(p => p.text || '').join('').trim() || data?.text || '';
+  }
+
+  function parseAiJson(content){
+    if (!content) return null;
+    try { return JSON.parse(content); } catch {}
+    const m = content.match(/\{[\s\S]*\}/);
+    if (m){ try { return JSON.parse(m[0]); } catch {} }
+    return null;
+  }
+
+  async function callWithRetry(profile, prompt){
+    let lastErr = null;
+    const maxRetries = Math.max(0, Number(profile.maxRetries || 0));
+    for (let attempt = 0; attempt <= maxRetries; attempt++){
+      try{
+        return profile.provider === 'gemini-native'
+          ? await callGeminiNative(profile, prompt)
+          : await callOpenAICompatible(profile, prompt);
+      }catch(err){
+        lastErr = err;
+        const status = Number(err.status || 0);
+        const retryable = status === 429 || status === 408 || status === 500 || status === 502 || status === 503 || status === 504;
+        if (!retryable || attempt === maxRetries) break;
+        const retryAfterSec = Number(err.retryAfter);
+        const waitMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0
+          ? retryAfterSec * 1000
+          : Math.min(12000, 1000 * (attempt + 1) * (attempt + 1));
+        setStatus(`Model "${profile.name}" bị ${status}. Thử lại lần ${attempt + 1}/${maxRetries} sau ${Math.ceil(waitMs / 1000)}s...`, 'info');
+        await sleep(waitMs);
+      }
+    }
+    throw lastErr || new Error('AI request failed');
+  }
+
+  async function generateAiForProblems(problems){
+    const profiles = getProfilesFromUI();
+    if (!profiles.length) throw new Error('Chưa có model nào được cấu hình.');
+    state.abortAi = false;
+    const output = [];
+    let done = 0;
+    setProgress(0, problems.length);
+
+    for (let i = 0; i < problems.length; i++){
+      if (state.abortAi) break;
+      const p = problems[i];
+      const needSolution = !p.solution || p.solution.trim() === '...';
+      const needTags = !p.tags || !p.tags.length || (p.tags.length === 1 && p.tags[0] === 'misc');
+      if (!needSolution && !needTags){
+        output.push(p);
+        done++;
+        setProgress(done, problems.length);
+        continue;
+      }
+
+      setStatus(`Đang xử lý ${i + 1}/${problems.length}: ${p.title}`, 'info');
+      const prompt = buildPrompt(p);
+      let success = false;
+      for (const profile of profiles){
+        if (state.abortAi) break;
+        const cooldownUntil = Number(profile.__cooldownUntil || 0);
+        if (cooldownUntil && Date.now() < cooldownUntil) continue;
+        try{
+          const content = await callWithRetry(profile, prompt);
+          const parsed = parseAiJson(content);
+          if (parsed){
+            if (needSolution && parsed.solution) p.solution = String(parsed.solution).trim();
+            if (Array.isArray(parsed.tags) && parsed.tags.length) p.tags = unique(parsed.tags.map(x => String(x).trim()).filter(Boolean));
+          }
+          success = true;
+          break;
+        }catch(err){
+          const status = Number(err.status || 0);
+          if (status === 429){
+            const extra = Number(profile.coolDownMs || 0);
+            profile.__cooldownUntil = Date.now() + Math.max(extra, 2500 + rand(1200));
+          }
+          continue;
+        }
+      }
+      if (!success){
+        if (needTags && (!p.tags || !p.tags.length)) p.tags = inferTags(p.statement + '\n' + p.solution + '\n' + p.title);
+      }
+      output.push(p);
+      done++;
+      setProgress(done, problems.length);
+      if (i + 1 < problems.length){
+        const delay = Number(el('globalDelayMs').value || 0);
+        const jitter = Number(el('globalJitterMs').value || 0);
+        const wait = Math.max(0, delay + rand(jitter));
+        if (wait) await sleep(wait);
+      }
+    }
+    return output;
+  }
+
+  async function processUrl(){
+    const rawUrl = el('urlInput').value.trim();
+    if (!rawUrl) return setStatus('Hãy nhập một URL.', 'error');
+    setStatus('Đang lấy nội dung từ link...', 'info');
+    try{
+      const fallbackTitle = el('titleInput').value.trim();
+      const fallbackLink = el('extraLinkInput').value.trim() || rawUrl;
+      const fallbackSource = el('sourceInput').value.trim();
+      const { text, finalUrl } = await fetchUrlContent(rawUrl);
+      const problems = enhanceFromUrlText(text, finalUrl, fallbackTitle, fallbackLink, fallbackSource);
+      updateResultUI(problems);
+      setStatus(`Đã lấy nội dung từ link và sinh ${problems.length} markdown.`, 'ok');
+    }catch(err){
+      setStatus('Không lấy được nội dung từ link. Hãy thử dán đề hoặc tải file.\n\n' + String(err.message || err), 'error');
+    }
+  }
+
+  el('fileInput').addEventListener('change', e => gatherFilesFromInput(e.target.files));
+  el('folderInput').addEventListener('change', e => gatherFilesFromInput(e.target.files));
+  const dropzone = el('dropzone');
+  ['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('dragover'); }));
+  dropzone.addEventListener('drop', e => {
+    const files = e.dataTransfer.files;
+    if (files && files.length){ state.files = Array.from(files); updateFileList(); setStatus(`Đã thả ${state.files.length} file.`, 'ok'); }
+  });
+
+  el('fetchUrlBtn').addEventListener('click', processUrl);
+  el('processTextBtn').addEventListener('click', processTextInput);
+  el('processFilesBtn').addEventListener('click', processFiles);
+  el('downloadBtn').addEventListener('click', () => downloadResults(state.parsedProblems));
+  el('copyAllBtn').addEventListener('click', copyAll);
+  el('previewBtn').addEventListener('click', previewFirst);
+  el('useDemoBtn').addEventListener('click', fillDemo);
+  el('fillSampleTextBtn').addEventListener('click', fillDemo);
+  el('clearFilesBtn').addEventListener('click', () => { state.files = []; updateFileList(); setStatus('Đã xóa danh sách file.', 'ok'); });
+  el('stopAiBtn').addEventListener('click', () => { state.abortAi = true; setStatus('Đã yêu cầu dừng AI.', 'info'); });
+  el('addProfileBtn').addEventListener('click', () => {
+    el('modelProfiles').appendChild(profileTemplate({ name:`Model ${document.querySelectorAll('.ai-card').length + 1}` }));
+  });
+  el('saveProfilesBtn').addEventListener('click', saveProfiles);
+  el('loadProfilesBtn').addEventListener('click', loadProfiles);
+
+  el('aiGenerateBtn').addEventListener('click', async () => {
+    if (!state.parsedProblems.length){
+      const text = el('textInput').value.trim();
+      if (!text) return setStatus('Hãy sinh dữ liệu trước rồi mới chạy AI.', 'error');
+      const title = el('textTitleInput').value.trim();
+      const link = el('textLinkInput').value.trim();
+      const source = detectSource(link || title || '', '');
+      const manualTags = el('manualTagsInput').value.trim();
+      const problems = parseMultiProblemText(text, { title, link, source, manualTags, splitMode: 'auto' });
+      updateResultUI(problems);
+    }
+    try{
+      const updated = await generateAiForProblems([...state.parsedProblems]);
+      updateResultUI(updated);
+      setStatus(`AI đã cập nhật ${updated.length} bài.`, 'ok');
+    }catch(err){
+      setStatus('Không chạy được AI. ' + String(err.message || err), 'error');
+    }
+  });
+
+  function init(){
+    ensureProfileDefaults();
+    fillDemo();
+    updateResultUI(parseMultiProblemText(el('textInput').value, {
+      title: el('textTitleInput').value.trim(),
+      link: el('textLinkInput').value.trim(),
+      source: detectSource(el('textLinkInput').value.trim(), ''),
+      manualTags: el('manualTagsInput').value.trim(),
+    }));
+    setProgress(0, 0);
+    setStatus('Sẵn sàng. Bạn có thể dùng link, dán đề hoặc tải file/folder.', 'ok');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
