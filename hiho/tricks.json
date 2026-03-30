@@ -1,5 +1,0 @@
-{
-  "two_pointers": "use two pointers to maintain a window",
-  "coordinate_compression": "map large values to smaller indices",
-  "manhattan_to_chebyshev": "rotate coordinates 45 degrees"
-}
